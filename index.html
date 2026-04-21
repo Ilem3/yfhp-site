@@ -22,13 +22,14 @@
                 }
             });
 
-            document.getElementById('mobile-menu').classList.add('hidden');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if(mobileMenu) mobileMenu.classList.add('hidden');
             if(window.lucide) lucide.createIcons();
         }
 
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
+            if(menu) menu.classList.toggle('hidden');
         }
 
         // Le moteur de Base de données
@@ -159,27 +160,22 @@
             if(window.lucide) lucide.createIcons();
         }
 
-        function filterPosts() {
-            const query = document.getElementById('search-posts').value.toLowerCase();
-            const filtered = mockPosts.filter(p => (p.title && p.title.toLowerCase().includes(query)) || (p.author && p.author.toLowerCase().includes(query)));
-            renderPosts(filtered);
-        }
-
         function renderMembers() {
             const grid = document.getElementById('members-grid');
             if(!grid) return;
             grid.innerHTML = mockMembers.map(member => {
-                const photoUrl = member.photo || \`https://ui-avatars.com/api/?name=\${encodeURIComponent(member.name)}&background=0067B7&color=fff&size=400\`;
-                return \`
+                const photoUrl = member.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=0067B7&color=fff&size=400`;
+                return `
                 <div class="bg-white p-6 rounded-3xl shadow-sm hover:shadow-xl transition-all text-center group">
                     <div class="relative w-32 h-32 mx-auto mb-6">
                         <div class="absolute inset-0 bg-yfhp-green rounded-full rotate-6 group-hover:rotate-12 transition-transform"></div>
-                        <img src="\${photoUrl}" alt="\${member.name}" class="absolute inset-0 w-full h-full object-cover rounded-full border-4 border-white">
+                        <img src="${photoUrl}" alt="${member.name}" class="absolute inset-0 w-full h-full object-cover rounded-full border-4 border-white">
                     </div>
-                    <h4 class="text-xl font-bold text-slate-900 mb-1">\${member.name}</h4>
-                    <p class="text-yfhp-blue font-medium text-sm">\${member.role}</p>
+                    <h4 class="text-xl font-bold text-slate-900 mb-1">${member.name}</h4>
+                    <p class="text-yfhp-blue font-medium text-sm">${member.role}</p>
                 </div>
-            \`}).join('');
+                `;
+            }).join('');
         }
 
         function renderNews() {
@@ -252,6 +248,7 @@
         window.onload = () => {
             if(window.lucide) lucide.createIcons();
             chargerBaseDeDonnees();
+            navigateTo('home'); // On force l'affichage de la page d'accueil !
 
             // Scroll Reveal Logic
             const observerOptions = { threshold: 0.1 };
