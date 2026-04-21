@@ -389,11 +389,50 @@
             menu.classList.toggle('hidden');
         }
 
-        // Data Mocking (empty for production)
-        const mockPosts = [];
-        const mockMembers = [];
-        const mockEvents = [];
-        const mockNews = [];
+        // Le moteur de Base de données
+        let mockPosts = [];
+        let mockMembers = [];
+        let mockEvents = [];
+        let mockNews = [];
+
+        async function chargerBaseDeDonnees() {
+            try {
+                // Va chercher les membres
+                const resMembres = await fetch('content/membres.json');
+                if(resMembres.ok) {
+                    const data = await resMembres.json();
+                    mockMembers = data.items || [];
+                    renderMembers(); // Affiche les membres
+                }
+                
+                // Va chercher les publications
+                const resPubs = await fetch('content/publications.json');
+                if(resPubs.ok) {
+                    const data = await resPubs.json();
+                    mockPosts = data.items || [];
+                    renderFeaturedPosts();
+                    renderPosts();
+                }
+
+                // Va chercher les événements
+                const resEvents = await fetch('content/evenements.json');
+                if(resEvents.ok) {
+                    const data = await resEvents.json();
+                    mockEvents = data.items || [];
+                    renderEvents();
+                }
+
+                // Va chercher les actualités
+                const resNews = await fetch('content/actualites.json');
+                if(resNews.ok) {
+                    const data = await resNews.json();
+                    mockNews = data.items || [];
+                    renderNews();
+                }
+            } catch (error) {
+                console.log("Base de données en attente de création...");
+            }
+        }
 
         // Render Functions
         function renderEvents() {
@@ -569,11 +608,12 @@
         // Initialize
         window.onload = () => {
             lucide.createIcons();
-            renderEvents();
-            renderFeaturedPosts();
-            renderPosts();
-            renderMembers();
-            renderNews();
+            chargerBaseDeDonnees(); // On lance la recherche de données !
+
+            // Scroll Reveal Logic
+            const observerOptions = {
+                threshold: 0.1
+            };
 
             // Scroll Reveal Logic
             const observerOptions = {
