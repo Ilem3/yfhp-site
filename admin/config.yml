@@ -2,51 +2,60 @@ backend:
   name: git-gateway
   branch: main
 
-media_folder: "public/assets"
-public_folder: "/assets"
+media_folder: "images"
+public_folder: "/images"
 
 collections:
-  - name: "posts"
-    label: "Publications"
-    folder: "content/posts"
-    create: true
-    slug: "{{slug}}"
-    fields:
-      - { label: "Titre", name: "title", widget: "string" }
-      - { label: "Auteur", name: "author", widget: "string" }
-      - { label: "Date", name: "date", widget: "datetime" }
-      - { label: "Image de couverture", name: "image", widget: "image" }
-      - { label: "Contenu", name: "body", widget: "markdown" }
+  - name: "base_de_donnees"
+    label: "Base de Données du Site"
+    files:
+      - label: "👥 Membres"
+        name: "membres"
+        file: "content/membres.json"
+        fields:
+          - label: "Liste des membres"
+            name: "items"
+            widget: "list"
+            fields:
+              - {label: "Nom Complet", name: "name", widget: "string"}
+              - {label: "Rôle", name: "role", widget: "string"}
+              - {label: "Photo (Lien http://...)", name: "photo", widget: "string", required: false}
+      
+      - label: "📚 Publications"
+        name: "publications"
+        file: "content/publications.json"
+        fields:
+          - label: "Articles"
+            name: "items"
+            widget: "list"
+            fields:
+              - {label: "Titre", name: "title", widget: "string"}
+              - {label: "Auteur", name: "author", widget: "string"}
+              - {label: "Date", name: "date", widget: "date"}
+              - {label: "Image (Lien http://...)", name: "image", widget: "string"}
+              - {label: "Contenu", name: "content", widget: "text"}
 
-  - name: "members"
-    label: "Membres"
-    folder: "content/members"
-    create: true
-    slug: "{{name}}"
-    fields:
-      - { label: "Nom", name: "name", widget: "string" }
-      - { label: "Rôle", name: "role", widget: "string" }
-      - { label: "Photo", name: "photo", widget: "image" }
-      - { label: "Ordre d'affichage", name: "order", widget: "number" }
+      - label: "📅 Événements"
+        name: "evenements"
+        file: "content/evenements.json"
+        fields:
+          - label: "Liste des événements"
+            name: "items"
+            widget: "list"
+            fields:
+              - {label: "Nom", name: "title", widget: "string"}
+              - {label: "Date", name: "date", widget: "date"}
+              - {label: "Lieu", name: "location", widget: "string"}
 
-  - name: "events"
-    label: "Événements"
-    folder: "content/events"
-    create: true
-    slug: "{{title}}"
-    fields:
-      - { label: "Titre", name: "title", widget: "string" }
-      - { label: "Date", name: "date", widget: "datetime" }
-      - { label: "Lieu", name: "location", widget: "string" }
-      - { label: "Description", name: "description", widget: "text" }
-
-  - name: "actualites"
-    label: "Actualités"
-    folder: "content/actualites"
-    create: true
-    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
-    fields:
-      - {label: "Titre", name: "title", widget: "string"}
-      - {label: "Source", name: "source", widget: "string"}
-      - {label: "Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", dateFormat: "YYYY-MM-DD", timeFormat: false}
-      - {label: "Résumé", name: "summary", widget: "text"}
+      - label: "🌍 Actualités"
+        name: "actualites"
+        file: "content/actualites.json"
+        fields:
+          - label: "Liste des actualités"
+            name: "items"
+            widget: "list"
+            fields:
+              - {label: "Titre", name: "title", widget: "string"}
+              - {label: "Source", name: "source", widget: "string"}
+              - {label: "Date", name: "date", widget: "string"}
+              - {label: "Résumé", name: "summary", widget: "text"}
