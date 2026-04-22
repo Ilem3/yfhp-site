@@ -379,35 +379,72 @@
             });
 
             // Close mobile menu if open
-            document.getElementById('mobile-menu').classList.add('hidden');
-            const menuIcon = document.getElementById('menu-icon');
-            lucide.createIcons();
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu) mobileMenu.classList.add('hidden');
+            if (window.lucide) lucide.createIcons();
         }
 
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
+            if (menu) menu.classList.toggle('hidden');
         }
 
-        // Data Mocking (empty for production)
-        const mockPosts = [];
-        const mockMembers = [];
-        const mockEvents = [];
-        const mockNews = [];
+        // --- DEBUT DU MOTEUR DE BASE DE DONNEES ---
+        let mockPosts = [];
+        let mockMembers = [];
+        let mockEvents = [];
+        let mockNews = [];
+
+        async function chargerBaseDeDonnees() {
+            try {
+                // Va chercher les membres
+                const resMembres = await fetch('content/membres.json');
+                if(resMembres.ok) {
+                    const data = await resMembres.json();
+                    mockMembers = data.items || [];
+                    renderMembers(); // Affiche les membres
+                }
+                
+                // Va chercher les publications
+                const resPubs = await fetch('content/publications.json');
+                if(resPubs.ok) {
+                    const data = await resPubs.json();
+                    mockPosts = data.items || [];
+                    renderFeaturedPosts();
+                    renderPosts();
+                }
+
+                // Va chercher les événements
+                const resEvents = await fetch('content/evenements.json');
+                if(resEvents.ok) {
+                    const data = await resEvents.json();
+                    mockEvents = data.items || [];
+                    renderEvents();
+                }
+
+                // Va chercher les actualités
+                const resNews = await fetch('content/actualites.json');
+                if(resNews.ok) {
+                    const data = await resNews.json();
+                    mockNews = data.items || [];
+                    renderNews();
+                }
+            } catch (error) {
+                console.log("Base de données en attente...");
+            }
+        }
+        // --- FIN DU MOTEUR DE BASE DE DONNEES ---
 
         // Render Functions
         function renderEvents() {
             const list = document.getElementById('events-list');
-            const count = document.getElementById('event-count');
-            if (count) {
-                count.innerText = mockEvents.length + ' événements répertoriés';
-            }
+            if (!list) return;
             
             list.innerHTML = mockEvents.map(event => {
                 const d = new Date(event.date);
-                const day = d.getDate();
-                const month = d.toLocaleString('fr-FR', { month: 'short' }).toUpperCase();
-                const year = d.getFullYear();
+                const day = d.getDate() || '?';
+                const month = d.toLocaleString('fr-FR', { month: 'short' }).toUpperCase() || '?';
+                const year = d.getFullYear() || '?';
                 
                 return `
                     <div class="flex items-center space-x-6 p-5 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all group">
@@ -417,34 +454,38 @@
                             <p class="text-[10px] opacity-80">${year}</p>
                         </div>
                         <div>
-                            <h4 class="font-bold text-xl mb-1">${event.title}</h4>
+                            <h4 class="font-bold text-xl mb-1">${event.title || 'Sans titre'}</h4>
                             <p class="text-sm opacity-80 flex items-center">
-                                <i data-lucide="calendar" class="mr-2 text-yfhp-green" style="width:14px;height:14px;"></i> ${event.location}
+                                <i data-lucide="calendar" class="mr-2 text-yfhp-green" style="width:14px;height:14px;"></i> ${event.location || 'Lieu à définir'}
                             </p>
                         </div>
                     </div>
                 `;
             }).join('');
-            lucide.createIcons();
+            if(window.lucide) lucide.createIcons();
         }
 
         function renderFeaturedPosts() {
             const grid = document.getElementById('featured-posts-grid');
-            // Sort by date descending (most recent first)
+            if (!grid) return;
             const sortedPosts = [...mockPosts].sort((a, b) => new Date(b.date) - new Date(a.date));
             
             grid.innerHTML = sortedPosts.map((post) => {
                 const index = mockPosts.indexOf(post);
+                const dateObj = new Date(post.date);
+                const dateStr = isNaN(dateObj) ? '' : dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+                const contentStr = post.content ? post.content.substring(0, 100) : '';
+
                 return `
                 <div class="flex-none w-[85vw] md:w-[600px] snap-center bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all group border border-slate-100">
                     <div class="flex flex-col sm:flex-row h-full">
                         <div class="h-48 sm:h-auto sm:w-2/5 overflow-hidden">
-                            <img src="${post.image}" alt="${post.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                            <img src="${post.image || 'https://images.unsplash.com/photo-1576091160550-2173ff9e5ee5?auto=format&fit=crop&q=80&w=800'}" alt="${post.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                         </div>
                         <div class="p-6 sm:p-8 sm:w-3/5 flex flex-col justify-center">
-                            <p class="text-[10px] sm:text-xs text-yfhp-green font-bold mb-2 sm:mb-3 uppercase tracking-wider">${new Date(post.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                            <h4 class="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 mb-3 sm:mb-4 leading-tight group-hover:text-yfhp-blue transition-colors line-clamp-2">${post.title}</h4>
-                            <p class="text-slate-500 text-xs sm:text-sm mb-4 sm:mb-6 line-clamp-2 sm:line-clamp-3">${post.content.substring(0, 100)}...</p>
+                            <p class="text-[10px] sm:text-xs text-yfhp-green font-bold mb-2 sm:mb-3 uppercase tracking-wider">${dateStr}</p>
+                            <h4 class="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 mb-3 sm:mb-4 leading-tight group-hover:text-yfhp-blue transition-colors line-clamp-2">${post.title || 'Sans titre'}</h4>
+                            <p class="text-slate-500 text-xs sm:text-sm mb-4 sm:mb-6 line-clamp-2 sm:line-clamp-3">${contentStr}...</p>
                             <button onclick="openArticle(${index})" class="text-yfhp-blue font-bold text-xs sm:text-sm flex items-center group-hover:translate-x-2 transition-transform">
                                 Lire l'article <i data-lucide="arrow-right" class="ml-2" style="width:16px;height:16px;"></i>
                             </button>
@@ -453,22 +494,27 @@
                 </div>
             `;
             }).join('');
-            lucide.createIcons();
+            if(window.lucide) lucide.createIcons();
         }
 
         function renderPosts(posts = mockPosts) {
             const grid = document.getElementById('posts-grid');
+            if (!grid) return;
             grid.innerHTML = posts.map((post) => {
                 const index = mockPosts.indexOf(post);
+                const dateObj = new Date(post.date);
+                const dateStr = isNaN(dateObj) ? '' : dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+                const contentStr = post.content ? post.content.substring(0, 120) : '';
+
                 return `
                 <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all group">
                     <div class="h-48 overflow-hidden">
-                        <img src="${post.image}" alt="${post.title}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <img src="${post.image || 'https://images.unsplash.com/photo-1576091160550-2173ff9e5ee5?auto=format&fit=crop&q=80&w=800'}" alt="${post.title}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                     </div>
                     <div class="p-6">
-                        <p class="text-xs text-yfhp-green font-bold mb-2 uppercase">${new Date(post.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                        <h4 class="text-xl font-bold text-slate-900 mb-3 line-clamp-2">${post.title}</h4>
-                        <p class="text-slate-500 text-sm mb-4 line-clamp-3">${post.content.substring(0, 120)}...</p>
+                        <p class="text-xs text-yfhp-green font-bold mb-2 uppercase">${dateStr}</p>
+                        <h4 class="text-xl font-bold text-slate-900 mb-3 line-clamp-2">${post.title || 'Sans titre'}</h4>
+                        <p class="text-slate-500 text-sm mb-4 line-clamp-3">${contentStr}...</p>
                         <button onclick="openArticle(${index})" class="text-yfhp-blue font-bold text-sm flex items-center group-hover:translate-x-2 transition-transform">
                             Lire la suite <i data-lucide="arrow-right" class="ml-1" style="width:16px;height:16px;"></i>
                         </button>
@@ -476,45 +522,51 @@
                 </div>
             `;
             }).join('');
-            lucide.createIcons();
+            if(window.lucide) lucide.createIcons();
         }
 
         function filterPosts() {
             const query = document.getElementById('search-posts').value.toLowerCase();
-            const filtered = mockPosts.filter(p => p.title.toLowerCase().includes(query) || p.author.toLowerCase().includes(query));
+            const filtered = mockPosts.filter(p => (p.title && p.title.toLowerCase().includes(query)) || (p.author && p.author.toLowerCase().includes(query)));
             renderPosts(filtered);
         }
 
         function renderMembers() {
             const grid = document.getElementById('members-grid');
-            grid.innerHTML = mockMembers.map(member => `
+            if (!grid) return;
+            grid.innerHTML = mockMembers.map(member => {
+                const photoUrl = member.photo ? member.photo : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(member.name || 'A') + '&background=0067B7&color=fff&size=400';
+                
+                return `
                 <div class="bg-white p-6 rounded-3xl shadow-sm hover:shadow-xl transition-all text-center group">
                     <div class="relative w-32 h-32 mx-auto mb-6">
                         <div class="absolute inset-0 bg-yfhp-green rounded-full rotate-6 group-hover:rotate-12 transition-transform"></div>
-                        <img src="${member.photo}" alt="${member.name}" class="absolute inset-0 w-full h-full object-cover rounded-full border-4 border-white">
+                        <img src="${photoUrl}" alt="${member.name}" class="absolute inset-0 w-full h-full object-cover rounded-full border-4 border-white">
                     </div>
-                    <h4 class="text-xl font-bold text-slate-900 mb-1">${member.name}</h4>
-                    <p class="text-yfhp-blue font-medium text-sm">${member.role}</p>
+                    <h4 class="text-xl font-bold text-slate-900 mb-1">${member.name || 'Membre'}</h4>
+                    <p class="text-yfhp-blue font-medium text-sm">${member.role || ''}</p>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function renderNews() {
             const grid = document.getElementById('news-grid');
+            if (!grid) return;
             grid.innerHTML = mockNews.map(n => `
                 <div class="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all border border-slate-100">
                     <div class="flex justify-between items-start mb-4">
-                        <span class="bg-yfhp-blue/10 text-yfhp-blue text-xs font-bold px-3 py-1 rounded-full">${n.source}</span>
-                        <span class="text-slate-400 text-xs">${n.date}</span>
+                        <span class="bg-yfhp-blue/10 text-yfhp-blue text-xs font-bold px-3 py-1 rounded-full">${n.source || 'Actualité'}</span>
+                        <span class="text-slate-400 text-xs">${n.date || ''}</span>
                     </div>
-                    <h4 class="text-xl font-bold text-slate-900 mb-3">${n.title}</h4>
-                    <p class="text-slate-600 mb-6">${n.summary}</p>
+                    <h4 class="text-xl font-bold text-slate-900 mb-3">${n.title || ''}</h4>
+                    <p class="text-slate-600 mb-6">${n.summary || ''}</p>
                     <a href="#" class="text-yfhp-green font-bold text-sm flex items-center hover:underline">
                         Lire l'article <i data-lucide="external-link" class="ml-2" style="width:14px;height:14px;"></i>
                     </a>
                 </div>
             `).join('');
-            lucide.createIcons();
+            if(window.lucide) lucide.createIcons();
         }
 
         // Article View Logic
@@ -523,27 +575,31 @@
             const modal = document.getElementById('article-modal');
             const content = document.getElementById('article-content');
             
+            const dateObj = new Date(post.date);
+            const dateStr = isNaN(dateObj) ? '' : dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+            const authorInitial = (post.author || 'A').charAt(0);
+            
             content.innerHTML = `
                 <div class="h-64 sm:h-96 w-full overflow-hidden">
-                    <img src="${post.image}" alt="${post.title}" class="w-full h-full object-cover">
+                    <img src="${post.image || 'https://images.unsplash.com/photo-1576091160550-2173ff9e5ee5?auto=format&fit=crop&q=80&w=800'}" alt="${post.title}" class="w-full h-full object-cover">
                 </div>
                 <div class="p-8 sm:p-12">
                     <div class="flex items-center space-x-4 mb-6">
                         <span class="bg-yfhp-green/10 text-yfhp-green text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">Publication</span>
-                        <span class="text-slate-400 text-sm">${new Date(post.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                        <span class="text-slate-400 text-sm">${dateStr}</span>
                     </div>
-                    <h2 class="text-3xl sm:text-5xl font-bold text-slate-900 mb-8 leading-tight">${post.title}</h2>
+                    <h2 class="text-3xl sm:text-5xl font-bold text-slate-900 mb-8 leading-tight">${post.title || ''}</h2>
                     <div class="flex items-center space-x-4 mb-10 pb-10 border-b border-slate-100">
                         <div class="w-12 h-12 bg-yfhp-blue rounded-full flex items-center justify-center text-white font-bold">
-                            ${post.author.charAt(0)}
+                            ${authorInitial}
                         </div>
                         <div>
-                            <p class="font-bold text-slate-900">${post.author}</p>
+                            <p class="font-bold text-slate-900">${post.author || 'Auteur inconnu'}</p>
                             <p class="text-xs text-slate-500">Contributeur YFHP</p>
                         </div>
                     </div>
                     <div class="prose prose-slate max-w-none">
-                        <p class="text-lg text-slate-600 leading-relaxed whitespace-pre-line">${post.content}</p>
+                        <p class="text-lg text-slate-600 leading-relaxed whitespace-pre-line">${post.content || ''}</p>
                     </div>
                     <div class="mt-12 pt-8 border-t border-slate-100 flex justify-between items-center">
                         <button onclick="closeArticleModal()" class="text-yfhp-blue font-bold flex items-center hover:translate-x-1 transition-transform">
@@ -557,23 +613,21 @@
             `;
             
             modal.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
-            lucide.createIcons();
+            document.body.style.overflow = 'hidden'; 
+            if(window.lucide) lucide.createIcons();
         }
 
         function closeArticleModal() {
             document.getElementById('article-modal').classList.remove('active');
-            document.body.style.overflow = 'auto'; // Restore scrolling
+            document.body.style.overflow = 'auto'; 
         }
 
         // Initialize
         window.onload = () => {
-            lucide.createIcons();
-            renderEvents();
-            renderFeaturedPosts();
-            renderPosts();
-            renderMembers();
-            renderNews();
+            if(window.lucide) lucide.createIcons();
+            
+            // Lancement du moteur de base de données !
+            chargerBaseDeDonnees();
 
             // Scroll Reveal Logic
             const observerOptions = {
