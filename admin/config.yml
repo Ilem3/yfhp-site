@@ -19,7 +19,7 @@ collections:
             fields:
               - {label: "Nom Complet", name: "name", widget: "string"}
               - {label: "Rôle", name: "role", widget: "string"}
-              - {label: "Photo (Lien http://...)", name: "photo", widget: "string", required: false}
+              - {label: "Photo (Lien http://...)", name: "photo", widget: "markdown", required: false}
       
       - label: "📚 Publications"
         name: "publications"
@@ -33,7 +33,7 @@ collections:
               - {label: "Auteur", name: "author", widget: "string"}
               - {label: "Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", dateFormat: "YYYY-MM-DD", timeFormat: false}
               - {label: "Image (Lien http://...)", name: "image", widget: "string"}
-              - {label: "Contenu", name: "content", widget: "text"}
+              - {label: "Contenu", name: "content", widget: "markdown"}
 
       - label: "📅 Événements"
         name: "evenements"
@@ -45,7 +45,7 @@ collections:
             fields:
               - {label: "Nom", name: "title", widget: "string"}
               - {label: "Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", dateFormat: "YYYY-MM-DD", timeFormat: false}
-              - {label: "Lieu", name: "location", widget: "string"}
+              - {label: "Lieu", name: "location", widget: "markdown"}
 
       - label: "🌍 Actualités"
         name: "actualites"
@@ -58,4 +58,4 @@ collections:
               - {label: "Titre", name: "title", widget: "string"}
               - {label: "Source", name: "source", widget: "string"}
               - {label: "Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", dateFormat: "YYYY-MM-DD", timeFormat: false}
-              - {label: "Résumé", name: "summary", widget: "text"}
+              - {label: "Résumé", name: "summary", widget: "markdown"}
