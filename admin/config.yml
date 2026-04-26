@@ -17,8 +17,8 @@ collections:
             name: "items"
             widget: "list"
             fields:
-              - {label: "Nom Complet", name: "name", widget: "string"}
-              - {label: "Rôle", name: "role", widget: "string"}
+              - {label: "Nom Complet", name: "name", widget: "string", required: false}
+              - {label: "Rôle", name: "role", widget: "string", required: false}
               - {label: "Photo (Lien http://...)", name: "photo", widget: "markdown", required: false}
       
       - label: "📚 Publications"
@@ -43,7 +43,7 @@ collections:
             name: "items"
             widget: "list"
             fields:
-              - {label: "Nom", name: "title", widget: "string"}
+              - {label: "Nom", name: "title", widget: "string", required: false}
               - {label: "Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", dateFormat: "YYYY-MM-DD", timeFormat: false, required: false}
               - {label: "Lieu", name: "location", widget: "markdown", required: false}
 
@@ -55,7 +55,8 @@ collections:
             name: "items"
             widget: "list"
             fields:
-              - {label: "Titre", name: "title", widget: "string"}
-              - {label: "Source", name: "source", widget: "string", required: false}
+              - {label: "Titre", name: "title", widget: "string", required: false}
+              - {label: "Source (Nom)", name: "source", widget: "string", required: false}
+              - {label: "Lien vers l'article officiel (URL)", name: "url", widget: "string", required: false}
               - {label: "Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", dateFormat: "YYYY-MM-DD", timeFormat: false, required: false}
-              - {label: "Résumé", name: "summary", widget: "markdown", required: false}
+              - {label: "Résumé complet (Markdown)", name: "summary", widget: "markdown", required: false}
