@@ -6,9 +6,9 @@
     <title>Young Federation for Health Promotion (YFHP)</title>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
@@ -403,7 +403,7 @@
                 if(resMembres.ok) {
                     const data = await resMembres.json();
                     mockMembers = data.items || [];
-                    renderMembers(); // Affiche les membres
+                    renderMembers();
                 }
                 
                 // Va chercher les publications
@@ -434,7 +434,6 @@
                 console.log("Base de données en attente...");
             }
         }
-        // --- FIN DU MOTEUR DE BASE DE DONNEES ---
 
         // Render Functions
         function renderEvents() {
@@ -551,26 +550,72 @@
             }).join('');
         }
 
+        // --- NOUVELLE FONCTION POUR LES ACTUALITES ---
         function renderNews() {
             const grid = document.getElementById('news-grid');
             if (!grid) return;
-            grid.innerHTML = mockNews.map(n => `
-                <div class="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all border border-slate-100">
+            grid.innerHTML = mockNews.map((n, index) => `
+                <div class="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all border border-slate-100 flex flex-col h-full">
                     <div class="flex justify-between items-start mb-4">
                         <span class="bg-yfhp-blue/10 text-yfhp-blue text-xs font-bold px-3 py-1 rounded-full">${n.source || 'Actualité'}</span>
                         <span class="text-slate-400 text-xs">${n.date || ''}</span>
                     </div>
-                    <h4 class="text-xl font-bold text-slate-900 mb-3">${n.title || ''}</h4>
-                    <p class="text-slate-600 mb-6">${n.summary || ''}</p>
-                    <a href="#" class="text-yfhp-green font-bold text-sm flex items-center hover:underline">
-                        Lire l'article <i data-lucide="external-link" class="ml-2" style="width:14px;height:14px;"></i>
-                    </a>
+                    <h4 class="text-xl font-bold text-slate-900 mb-3 line-clamp-2">${n.title || ''}</h4>
+                    
+                    <div class="text-slate-600 mb-6 line-clamp-3 text-sm prose">
+                        ${marked.parse(n.summary || '')}
+                    </div>
+                    
+                    <div class="mt-auto">
+                        <button onclick="openNews(${index})" class="text-yfhp-green font-bold text-sm flex items-center hover:underline">
+                            Lire le résumé complet <i data-lucide="maximize-2" class="ml-2" style="width:14px;height:14px;"></i>
+                        </button>
+                    </div>
                 </div>
             `).join('');
             if(window.lucide) lucide.createIcons();
         }
 
-        // Article View Logic
+        // --- NOUVELLE FONCTION POUR OUVRIR L'ACTUALITE EN GRAND ---
+        function openNews(index) {
+            const n = mockNews[index];
+            const modal = document.getElementById('article-modal');
+            const content = document.getElementById('article-content');
+            
+            content.innerHTML = `
+                <div class="p-8 sm:p-12">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <span class="bg-yfhp-blue/10 text-yfhp-blue text-xs font-bold px-3 py-1 rounded-full">${n.source || 'Actualité'}</span>
+                        <span class="text-slate-400 text-sm">${n.date || ''}</span>
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-8">${n.title || ''}</h2>
+                    
+                    <div class="prose prose-slate max-w-none text-lg text-slate-600 leading-relaxed markdown-content">
+                        ${marked.parse(n.summary || '')}
+                    </div>
+                    
+                    ${n.url ? `
+                        <div class="mt-10 pt-8 border-t border-slate-100">
+                            <a href="${n.url}" target="_blank" class="inline-flex items-center bg-yfhp-blue text-white px-6 py-3 rounded-full font-bold hover:bg-yfhp-blue/90 transition-all">
+                                Voir l'article officiel <i data-lucide="external-link" class="ml-2" style="width:18px;height:18px;"></i>
+                            </a>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="mt-12 pt-8 border-t border-slate-100 flex justify-between items-center">
+                        <button onclick="closeArticleModal()" class="text-yfhp-blue font-bold flex items-center hover:translate-x-1 transition-transform">
+                            <i data-lucide="arrow-left" class="mr-2" style="width:20px;height:20px;"></i> Retour aux actualités
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; 
+            if(window.lucide) lucide.createIcons();
+        }
+
+        // Article View Logic (Publications)
         function openArticle(index) {
             const post = mockPosts[index];
             const modal = document.getElementById('article-modal');
@@ -599,7 +644,7 @@
                             <p class="text-xs text-slate-500">Contributeur YFHP</p>
                         </div>
                     </div>
-                    <div class="prose prose-slate max-w-none text-lg text-slate-600 leading-relaxed">
+                    <div class="prose prose-slate max-w-none text-lg text-slate-600 leading-relaxed markdown-content">
                         ${marked.parse(post.content || '')}
                     </div>
                     <div class="mt-12 pt-8 border-t border-slate-100 flex justify-between items-center">
