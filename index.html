@@ -238,7 +238,7 @@
                     </button>
                 </div>
                 <div id="featured-posts-grid" class="flex overflow-x-auto snap-x snap-mandatory gap-6 sm:gap-8 pb-8 custom-scrollbar">
-                    </div>
+                </div>
             </div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-reveal">
@@ -255,7 +255,7 @@
                         
                         <div class="relative">
                             <div id="events-list" class="max-h-[450px] overflow-y-auto pr-4 space-y-4 custom-scrollbar">
-                                </div>
+                            </div>
                             <div class="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-yfhp-blue to-transparent pointer-events-none"></div>
                         </div>
                     </div>
@@ -281,7 +281,7 @@
                 </div>
             </div>
             <div id="posts-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                </div>
+            </div>
         </section>
 
         <section id="section-membres" class="section-fade max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -292,7 +292,7 @@
                 </p>
             </div>
             <div id="members-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                </div>
+            </div>
         </section>
 
         <section id="section-actualites" class="section-fade max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -301,7 +301,7 @@
                 <p class="text-slate-600">Les dernières actualités de la santé publique à travers le monde.</p>
             </div>
             <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                </div>
+            </div>
         </section>
     </main>
 
@@ -351,7 +351,7 @@
                 <i data-lucide="x" style="width:24px;height:24px;"></i>
             </button>
             <div id="article-content">
-                </div>
+            </div>
         </div>
     </div>
 
@@ -474,7 +474,6 @@
                 const index = mockPosts.indexOf(post);
                 const dateObj = new Date(post.date);
                 const dateStr = isNaN(dateObj) ? '' : dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-                const contentStr = post.content ? post.content.substring(0, 100) : '';
 
                 return `
                 <div class="flex-none w-[85vw] md:w-[600px] snap-center bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all group border border-slate-100">
@@ -485,7 +484,11 @@
                         <div class="p-6 sm:p-8 sm:w-3/5 flex flex-col justify-center">
                             <p class="text-[10px] sm:text-xs text-yfhp-green font-bold mb-2 sm:mb-3 uppercase tracking-wider">${dateStr}</p>
                             <h4 class="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 mb-3 sm:mb-4 leading-tight group-hover:text-yfhp-blue transition-colors line-clamp-2">${post.title || 'Sans titre'}</h4>
-                            <p class="text-slate-500 text-xs sm:text-sm mb-4 sm:mb-6 line-clamp-2 sm:line-clamp-3">${contentStr}...</p>
+                            
+                            <div class="text-slate-500 text-xs sm:text-sm mb-4 sm:mb-6 line-clamp-2 sm:line-clamp-3 prose prose-sm">
+                                ${marked.parse(post.content || '')}
+                            </div>
+
                             <button onclick="openArticle(${index})" class="text-yfhp-blue font-bold text-xs sm:text-sm flex items-center group-hover:translate-x-2 transition-transform">
                                 Lire l'article <i data-lucide="arrow-right" class="ml-2" style="width:16px;height:16px;"></i>
                             </button>
@@ -504,7 +507,6 @@
                 const index = mockPosts.indexOf(post);
                 const dateObj = new Date(post.date);
                 const dateStr = isNaN(dateObj) ? '' : dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-                const contentStr = post.content ? post.content.substring(0, 120) : '';
 
                 return `
                 <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all group">
@@ -514,7 +516,11 @@
                     <div class="p-6">
                         <p class="text-xs text-yfhp-green font-bold mb-2 uppercase">${dateStr}</p>
                         <h4 class="text-xl font-bold text-slate-900 mb-3 line-clamp-2">${post.title || 'Sans titre'}</h4>
-                        <p class="text-slate-500 text-sm mb-4 line-clamp-3">${contentStr}...</p>
+                        
+                        <div class="text-slate-500 text-sm mb-4 line-clamp-3 prose prose-sm">
+                            ${marked.parse(post.content || '')}
+                        </div>
+
                         <button onclick="openArticle(${index})" class="text-yfhp-blue font-bold text-sm flex items-center group-hover:translate-x-2 transition-transform">
                             Lire la suite <i data-lucide="arrow-right" class="ml-1" style="width:16px;height:16px;"></i>
                         </button>
